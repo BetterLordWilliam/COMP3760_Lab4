@@ -10,6 +10,7 @@ public class Graph
     private int cardVertices;
     private String[] vertexLabels;
     private int[][] edges;
+    
     private ArrayList<String> dfsvisited;
     private ArrayList<String> dfsdeadEnds;
     private ArrayList<String> bfsvisited;
@@ -127,9 +128,10 @@ public class Graph
         dfsvisited.add(vertexLabels[v]);
         if (!quiet)
             System.out.println(String.format("Visisted: %s", vertexLabels[v]));
+
         for (int i = 0; i < edges[v].length; i++)
         {
-            if (dfsvisited.contains(vertexLabels[i]))
+            if (dfsvisited.contains(vertexLabels[i]) || edges[v][i] == 0)
                 continue;
             dfsHelper(i, quiet);
         }
@@ -172,7 +174,24 @@ public class Graph
      */
     public void runDFS(String v, boolean quiet)
     {
+        int vi = containsVertex(v);
+        if (vi == VERTEX_BAD)
+            return;
 
+        dfsvisited = new ArrayList<>();
+        dfsdeadEnds = new ArrayList<>();
+        for (int i = vi; i < edges.length; i++)
+        {
+            if (dfsvisited.contains(vertexLabels[i]))
+                continue;
+            if (dfsvisited.size() == vertexLabels.length)
+                break;
+                
+            dfsHelper(i, quiet);
+            
+            if (i == edges.length - 1)
+                i = 0;
+        }
     }
 
     /**
@@ -247,6 +266,11 @@ public class Graph
         for (Graph g : graphs)
         {
             g.runDFS(false);
+            System.out.println("Visited: " + g.getLastDFSOrder());
+            System.out.println("Dead ends: " + g.getLastDFSDeadEndOrder());
+            System.out.println(g);
+
+            g.runDFS("b3", false);
             System.out.println("Visited: " + g.getLastDFSOrder());
             System.out.println("Dead ends: " + g.getLastDFSDeadEndOrder());
             System.out.println(g);
