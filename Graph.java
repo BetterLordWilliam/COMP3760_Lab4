@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -6,15 +5,38 @@ public class Graph
 {
     private static int VERTEX_BAD = -1;
 
-    private boolean isDirected;
-    private int cardVertices;
-    private String[] vertexLabels;
-    private int[][] edges;
-    
+    private final boolean isDirected;
+    private final int cardVertices;
+    private final String[] vertexLabels;
+    private final int[][] edges;
+
     private ArrayList<String> dfsvisited;
     private ArrayList<String> dfsdeadEnds;
     private ArrayList<String> bfsvisited;
 
+    /**
+     * Helper class for the testing method.
+     * 
+     * I will be using it to store graphs with a testing start vertex.
+     */
+    private static class Pair <T1, T2>
+    {
+        final T1 one;
+        final T2 two;
+
+        Pair(T1 one, T2 two)
+        {
+            this.one = one;
+            this.two = two;
+        }
+    }
+
+    /**
+     * Graph constructor.
+     * 
+     * @param vertexLabels
+     * @param isDirected
+     */
     public Graph(String[] vertexLabels, boolean isDirected)
     {
         // Save references
@@ -109,9 +131,13 @@ public class Graph
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        for (int[] row : edges)
+        sb.append("  ");
+        sb.append(String.join("  ", vertexLabels));
+        sb.append("\n");
+        for (int i = 0; i < edges.length; i++)
         {
-            sb.append(Arrays.toString(row));
+            sb.append(vertexLabels[i]);
+            sb.append(Arrays.toString(edges[i]));
             sb.append("\n");
         }
         return sb.toString();
@@ -180,18 +206,10 @@ public class Graph
 
         dfsvisited = new ArrayList<>();
         dfsdeadEnds = new ArrayList<>();
-        for (int i = vi; i < edges.length; i++)
-        {
-            if (dfsvisited.contains(vertexLabels[i]))
-                continue;
-            if (dfsvisited.size() == vertexLabels.length)
-                break;
-                
-            dfsHelper(i, quiet);
-            
-            if (i == edges.length - 1)
-                i = 0;
-        }
+
+        if (dfsvisited.contains(vertexLabels[vi]))
+            return;
+        dfsHelper(vi, quiet);
     }
 
     /**
@@ -257,20 +275,41 @@ public class Graph
         g1.addEdge("b1", "b2");
         g1.addEdge("b2", "b3");
 
+        Graph g2 = new Graph(new String[] {"A", "B", "C", "D", "E", "F", "H"}, false);
+        g2.addEdge("A", "B");
+        g2.addEdge("A", "C");
+        g2.addEdge("A", "D");
+        g2.addEdge("C", "E");
+        g2.addEdge("E", "F");
+        g2.addEdge("F", "D");
+        g2.addEdge("F", "H");
 
-        ArrayList<Graph> graphs = new ArrayList<>();
-        graphs.add(g1);
+        Graph g3 = new Graph(new String[] {"A", "B", "C", "D", "E", "F", "H"}, true);
+        g3.addEdge("A", "B");
+        g3.addEdge("A", "C");
+        g3.addEdge("A", "D");
+        g3.addEdge("C", "E");
+        g3.addEdge("E", "F");
+        g3.addEdge("F", "D");
+        g3.addEdge("F", "H");
 
+        ArrayList<Pair<Graph, String>> graphs = new ArrayList<>();
+        graphs.add(new Pair<>(g1, "b3"));
+        graphs.add(new Pair<>(g2, "D"));
+        graphs.add(new Pair<>(g3, "D"));
 
         // DFS Testing
-        for (Graph g : graphs)
+        for (Pair<Graph, String> p : graphs)
         {
+            Graph g = p.one;
+            String vertex = p.two;
+
             g.runDFS(false);
             System.out.println("Visited: " + g.getLastDFSOrder());
             System.out.println("Dead ends: " + g.getLastDFSDeadEndOrder());
             System.out.println(g);
 
-            g.runDFS("b3", false);
+            g.runDFS(vertex, false);
             System.out.println("Visited: " + g.getLastDFSOrder());
             System.out.println("Dead ends: " + g.getLastDFSDeadEndOrder());
             System.out.println(g);
