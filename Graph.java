@@ -1,9 +1,11 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+
 
 public class Graph
 {
-    private static int VERTEX_BAD = -1;
+    private static final int VERTEX_BAD = -1;
 
     private final boolean isDirected;
     private final int cardVertices;
@@ -13,23 +15,7 @@ public class Graph
     private ArrayList<String> dfsvisited;
     private ArrayList<String> dfsdeadEnds;
     private ArrayList<String> bfsvisited;
-
-    /**
-     * Helper class for the testing method.
-     * 
-     * I will be using it to store graphs with a testing start vertex.
-     */
-    private static class Pair <T1, T2>
-    {
-        final T1 one;
-        final T2 two;
-
-        Pair(T1 one, T2 two)
-        {
-            this.one = one;
-            this.two = two;
-        }
-    }
+    private LinkedList<Integer> lineup;
 
     /**
      * Graph constructor.
@@ -63,6 +49,16 @@ public class Graph
                 return i;
         }
         return -1;
+    }
+
+    /**
+     * Prints visited line to the console.
+     * 
+     * @param vertex
+     */
+    private void printVisited(int vertex)
+    {
+        System.out.println(String.format("Visisted: %s", vertexLabels[vertex]));
     }
 
     /**
@@ -124,16 +120,17 @@ public class Graph
             edges[v2][v1] = 1;
         }
     }
-    
+
     /**
      * String representation of the adjacency matrix.
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("  ");
-        sb.append(String.join("  ", vertexLabels));
-        sb.append("\n");
+        // sb.append("  ");
+        // sb.append(String.join("  ", vertexLabels));
+        // sb.append("\n");
         for (int i = 0; i < edges.length; i++)
         {
             sb.append(vertexLabels[i]);
@@ -152,8 +149,7 @@ public class Graph
     private void dfsHelper(int v, boolean quiet)
     {  
         dfsvisited.add(vertexLabels[v]);
-        if (!quiet)
-            System.out.println(String.format("Visisted: %s", vertexLabels[v]));
+        if (!quiet) printVisited(v);
 
         for (int i = 0; i < edges[v].length; i++)
         {
@@ -172,23 +168,26 @@ public class Graph
      */
     private void bfsHelper(int v, boolean quiet)
     {
+        // LinkedList is an implementation of a queue structure in java
+        lineup = new LinkedList<>();
+        bfsvisited.add(vertexLabels[v]);
+        if (!quiet) printVisited(v);
 
-    }
-
-    /**
-     * Perform DFS.
-     * 
-     * @param quiet
-     */
-    public void runDFS(boolean quiet)
-    {
-        dfsvisited = new ArrayList<>();
-        dfsdeadEnds = new ArrayList<>();
-        for (int i = 0; i < edges.length; i++)
+        // Queue my man up
+        lineup.add(v);
+        while (!lineup.isEmpty())
         {
-            if (dfsvisited.contains(vertexLabels[i]))
-                continue;
-            dfsHelper(i, quiet);
+            for (int i = 0; i < edges[lineup.peek()].length; i++)
+            {
+                if (bfsvisited.contains(vertexLabels[i]) || edges[lineup.peek()][i] == 0)
+                    continue;
+                // Queue my mans unvisited neighbours
+                bfsvisited.add(vertexLabels[i]);
+                if (!quiet) printVisited(i);
+                lineup.add(i);
+            }
+            // bye bye
+            lineup.poll();
         }
     }
 
@@ -198,18 +197,68 @@ public class Graph
      * @param v
      * @param quiet
      */
-    public void runDFS(String v, boolean quiet)
+    public void runDFSActual(String vertex, boolean quiet)
     {
-        int vi = containsVertex(v);
-        if (vi == VERTEX_BAD)
-            return;
-
+        int v = containsVertex(vertex);
+        if (v == VERTEX_BAD) return;
         dfsvisited = new ArrayList<>();
         dfsdeadEnds = new ArrayList<>();
 
-        if (dfsvisited.contains(vertexLabels[vi]))
-            return;
-        dfsHelper(vi, quiet);
+        for (int i = v; i < edges.length; i++)
+        {
+            if (dfsvisited.contains(vertexLabels[i]))
+                continue;
+            if (dfsvisited.size() == vertexLabels.length)
+                break;
+            dfsHelper(i, quiet);
+
+            if (i == edges.length - 1) i = 0;
+        }
+    }
+
+    /**
+     * Perform BFS from a starting vertex.
+     * 
+     * @param vertex
+     * @param quiet
+     */
+    public void runBFSActual(String vertex, boolean quiet)
+    {
+        int v = containsVertex(vertex);
+        if (v == VERTEX_BAD) return;
+        bfsvisited = new ArrayList<>();
+
+        for (int i = v; i < edges.length; i++)
+        {
+            if (bfsvisited.contains(vertexLabels[i]))
+                continue;
+            if (bfsvisited.size() == vertexLabels.length)
+                break;
+            bfsHelper(i, quiet);
+            
+            if (i == edges.length - 1) i = 0;
+        }
+    }
+
+    /**
+     * Nice public interface
+     * 
+     * @param quiet
+     */
+    public void runDFS(boolean quiet)
+    {
+        // Just use the first vertex label
+        runDFSActual(vertexLabels[0], quiet);
+    }
+
+    /**
+     * Nice public interface
+     * 
+     * @param quiet
+     */
+    public void runDFS(String vertex, boolean quiet)
+    {
+        runDFSActual(vertex, quiet);
     }
 
     /**
@@ -219,7 +268,7 @@ public class Graph
      */
     public void runBFS(boolean quiet)
     {
-
+        runBFSActual(vertexLabels[0], quiet);
     }
 
     /**
@@ -230,7 +279,7 @@ public class Graph
      */
     public void runBFS(String v, boolean quiet)
     {
-        
+        runBFSActual(v, quiet);
     }
 
     /**
@@ -261,61 +310,5 @@ public class Graph
     public String getLastBFSOrder()
     {
         return bfsvisited.toString();
-    }
-
-    /**
-     * Testing method
-     * 
-     * @param args
-     */
-    public static void main(String[] args)
-    {
-        Graph g1 = new Graph(new String[] {"b0", "b1", "b2", "b3"}, false);
-        g1.addEdge("b0", "b1");
-        g1.addEdge("b1", "b2");
-        g1.addEdge("b2", "b3");
-
-        Graph g2 = new Graph(new String[] {"A", "B", "C", "D", "E", "F", "H"}, false);
-        g2.addEdge("A", "B");
-        g2.addEdge("A", "C");
-        g2.addEdge("A", "D");
-        g2.addEdge("C", "E");
-        g2.addEdge("E", "F");
-        g2.addEdge("F", "D");
-        g2.addEdge("F", "H");
-
-        Graph g3 = new Graph(new String[] {"A", "B", "C", "D", "E", "F", "H"}, true);
-        g3.addEdge("A", "B");
-        g3.addEdge("A", "C");
-        g3.addEdge("A", "D");
-        g3.addEdge("C", "E");
-        g3.addEdge("E", "F");
-        g3.addEdge("F", "D");
-        g3.addEdge("F", "H");
-
-        ArrayList<Pair<Graph, String>> graphs = new ArrayList<>();
-        graphs.add(new Pair<>(g1, "b3"));
-        graphs.add(new Pair<>(g2, "D"));
-        graphs.add(new Pair<>(g3, "D"));
-
-        // DFS Testing
-        for (Pair<Graph, String> p : graphs)
-        {
-            Graph g = p.one;
-            String vertex = p.two;
-
-            g.runDFS(false);
-            System.out.println("Visited: " + g.getLastDFSOrder());
-            System.out.println("Dead ends: " + g.getLastDFSDeadEndOrder());
-            System.out.println(g);
-
-            g.runDFS(vertex, false);
-            System.out.println("Visited: " + g.getLastDFSOrder());
-            System.out.println("Dead ends: " + g.getLastDFSDeadEndOrder());
-            System.out.println(g);
-        }
-
-        // BFS Testing
-
     }
 }
