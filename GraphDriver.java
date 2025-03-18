@@ -26,6 +26,7 @@ public class GraphDriver
      */
     private static void dfsTestGraphs(ArrayList<Pair<Graph, String>> graphs)
     {
+        System.out.println("DFS Algorithms");
         // DFS Testing
         for (Pair<Graph, String> p : graphs)
         {
@@ -51,6 +52,7 @@ public class GraphDriver
      */
     private static void bfsTestGraphs(ArrayList<Pair<Graph, String>> graphs)
     {
+        System.out.println("BFS Algorithms");
         // DFS Testing
         for (Pair<Graph, String> p : graphs)
         {
