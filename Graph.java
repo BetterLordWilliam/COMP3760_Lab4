@@ -189,10 +189,11 @@ public class Graph
      */
     public void runDFS(String vertex, boolean quiet)
     {
-        dfsvisited = new ArrayList<>();
-        dfsdeadEnds = new ArrayList<>();
+        // Get the vertex for the supplied string
         int v = containsVertex(vertex);
         if (v == VERTEX_BAD) return;
+        dfsvisited = new ArrayList<>();
+        dfsdeadEnds = new ArrayList<>();
 
         for (int i = v; i < edges.length; i++)
         {
@@ -289,9 +290,10 @@ public class Graph
      */
     public void runBFS(String vertex, boolean quiet)
     {
-        bfsvisited = new ArrayList<>();
+        // Get the vertex for the supplied string
         int v = containsVertex(vertex);
         if (v == VERTEX_BAD) return;
+        bfsvisited = new ArrayList<>();
 
         for (int i = v; i < edges.length; i++)
         {

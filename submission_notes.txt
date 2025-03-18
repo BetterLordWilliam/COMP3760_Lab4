@@ -1,0 +1,1 @@
+Hello! I have updated the graph/graph driver class with slightly modified code to try and address the null pointer issue. I suspect this is because I was using slightly different methods to simplify the code in Graph.java. I have changed the code to more closely follow the structure of the file presented in the document.

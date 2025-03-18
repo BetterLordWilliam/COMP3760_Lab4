@@ -1,0 +1,127 @@
+```
+g1 DFS:
+Visited: b0
+Visited: b1
+Visited: b2
+Visited: b3
+DFS Visited Order: [b0, b1, b2, b3]
+g1 BFS:
+Visited: b0
+Visited: b1
+Visited: b2
+Visited: b3
+BFS Visited Order: [b0, b1, b2, b3]
+
+g2 DFS:
+Visited: A
+Visited: B
+Visited: C
+Visited: E
+Visited: F
+Visited: D
+Visited: H
+DFS Visited Order: [A, B, C, E, F, D, H]
+g2 BFS:
+Visited: A
+Visited: B
+Visited: C
+Visited: D
+Visited: E
+Visited: F
+Visited: H
+BFS Visited Order: [A, B, C, D, E, F, H]
+
+g3 DFS:
+Visited: A
+Visited: B
+Visited: C
+Visited: E
+Visited: F
+Visited: D
+Visited: H
+DFS Visited Order: [A, B, C, E, F, D, H]
+g3 BFS:
+Visited: A
+Visited: B
+Visited: C
+Visited: D
+Visited: E
+Visited: F
+Visited: H
+BFS Visited Order: [A, B, C, D, E, F, H]
+
+g4 DFS (A):
+Visited: A
+Visited: B
+Visited: D
+Visited: C
+DFS Visited Order: [A, B, D, C]
+g4 BFS (A):
+Visited: A
+Visited: B
+Visited: C
+Visited: D
+BFS Visited Order: [A, B, C, D]
+g4 DFS (E):
+Visited: E
+Visited: F
+Visited: G
+DFS Visited Order: [E, F, G]
+g4 BFS (E):
+Visited: E
+Visited: F
+Visited: G
+BFS Visited Order: [E, F, G]
+
+g5 DFS (A):
+Visited: A
+Visited: B
+Visited: C
+Visited: H
+Visited: E
+Visited: F
+DFS Visited Order: [A, B, C, H, E, F]
+g5 BFS (A):
+Visited: A
+Visited: B
+Visited: C
+Visited: H
+Visited: E
+Visited: F
+BFS Visited Order: [A, B, C, H, E, F]
+g5 DFS (D):
+Visited: D
+Visited: G
+DFS Visited Order: [D, G]
+g5 BFS (D):
+Visited: D
+Visited: G
+BFS Visited Order: [D, G]
+
+g6 DFS (1):
+Visited: 1
+Visited: 4
+Visited: 3
+DFS Visited Order: [1, 4, 3]
+g6 BFS (1):
+Visited: 1
+Visited: 4
+Visited: 3
+BFS Visited Order: [1, 4, 3]
+g6 DFS (5):
+Visited: 5
+Visited: 1
+Visited: 4
+Visited: 3
+Visited: 2
+Visited: 6
+DFS Visited Order: [5, 1, 4, 3, 2, 6]
+g6 BFS (5):
+Visited: 5
+Visited: 1
+Visited: 2
+Visited: 6
+Visited: 4
+Visited: 3
+BFS Visited Order: [5, 1, 2, 6, 4, 3]
+```
