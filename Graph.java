@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-
 public class Graph
 {
     private static final int VERTEX_BAD = -1;
@@ -89,7 +88,7 @@ public class Graph
      */
     public String getLabel(int v)
     {
-        return null;
+        return vertexLabels[v];
     }
 
     /**
@@ -157,9 +156,80 @@ public class Graph
                 continue;
             dfsHelper(i, quiet);
         }
-        dfsdeadEnds.add(vertexLabels[v]);
+        dfsdeadEnds.add(getLabel(v));
     }
-    
+
+    /**
+     * Nice public interface
+     * 
+     * @param quiet
+     */
+    public void runDFS(boolean quiet)
+    {
+        // Just use the first vertex label
+        dfsvisited = new ArrayList<>();
+        dfsdeadEnds = new ArrayList<>();
+
+        for (int i = 0; i < edges.length; i++)
+        {
+            if (dfsvisited.contains(vertexLabels[i]))
+                continue;
+            if (dfsvisited.size() == vertexLabels.length)
+                break;
+            dfsHelper(i, quiet);
+
+            if (i == edges.length - 1) i = 0;
+        }
+    }
+
+    /**
+     * Nice public interface
+     * 
+     * @param quiet
+     */
+    public void runDFS(String vertex, boolean quiet)
+    {
+        dfsvisited = new ArrayList<>();
+        dfsdeadEnds = new ArrayList<>();
+        int v = containsVertex(vertex);
+        if (v == VERTEX_BAD) return;
+
+        for (int i = v; i < edges.length; i++)
+        {
+            if (dfsvisited.contains(vertexLabels[i]))
+                continue;
+            if (dfsvisited.size() == vertexLabels.length)
+                break;
+            dfsHelper(i, quiet);
+
+            if (i == edges.length - 1) i = 0;
+        }
+    }
+
+    /**
+     * Returns string of last DFS order.
+     * 
+     * @return
+     */
+    public String getLastDFSOrder()
+    {
+        if (dfsvisited == null)
+            return "";
+        return dfsvisited.toString();
+    }
+
+    /**
+     * Returns string of last DFS dead ends order.
+     * 
+     * @return
+     */
+    public String getLastDFSDeadEndOrder()
+    {
+        if (dfsdeadEnds == null)
+            return "";
+        return dfsdeadEnds.toString();
+    }
+
     /**
      * 
      * 
@@ -182,7 +252,7 @@ public class Graph
                 if (bfsvisited.contains(vertexLabels[i]) || edges[lineup.peek()][i] == 0)
                     continue;
                 // Queue my mans unvisited neighbours
-                bfsvisited.add(vertexLabels[i]);
+                bfsvisited.add(getLabel(i));
                 if (!quiet) printVisited(i);
                 lineup.add(i);
             }
@@ -192,26 +262,21 @@ public class Graph
     }
 
     /**
-     * Perform DFS from a starting vertex.
+     * Perform BFS.
      * 
-     * @param v
      * @param quiet
      */
-    public void runDFSActual(String vertex, boolean quiet)
+    public void runBFS(boolean quiet)
     {
-        int v = containsVertex(vertex);
-        if (v == VERTEX_BAD) return;
-        dfsvisited = new ArrayList<>();
-        dfsdeadEnds = new ArrayList<>();
-
-        for (int i = v; i < edges.length; i++)
+        bfsvisited = new ArrayList<>();
+        for (int i = 0; i < edges.length; i++)
         {
-            if (dfsvisited.contains(vertexLabels[i]))
+            if (bfsvisited.contains(vertexLabels[i]))
                 continue;
-            if (dfsvisited.size() == vertexLabels.length)
+            if (bfsvisited.size() == vertexLabels.length)
                 break;
-            dfsHelper(i, quiet);
-
+            bfsHelper(i, quiet);
+            
             if (i == edges.length - 1) i = 0;
         }
     }
@@ -219,14 +284,14 @@ public class Graph
     /**
      * Perform BFS from a starting vertex.
      * 
-     * @param vertex
+     * @param v
      * @param quiet
      */
-    public void runBFSActual(String vertex, boolean quiet)
+    public void runBFS(String vertex, boolean quiet)
     {
+        bfsvisited = new ArrayList<>();
         int v = containsVertex(vertex);
         if (v == VERTEX_BAD) return;
-        bfsvisited = new ArrayList<>();
 
         for (int i = v; i < edges.length; i++)
         {
@@ -241,74 +306,14 @@ public class Graph
     }
 
     /**
-     * Nice public interface
-     * 
-     * @param quiet
-     */
-    public void runDFS(boolean quiet)
-    {
-        // Just use the first vertex label
-        runDFSActual(vertexLabels[0], quiet);
-    }
-
-    /**
-     * Nice public interface
-     * 
-     * @param quiet
-     */
-    public void runDFS(String vertex, boolean quiet)
-    {
-        runDFSActual(vertex, quiet);
-    }
-
-    /**
-     * Perform BFS.
-     * 
-     * @param quiet
-     */
-    public void runBFS(boolean quiet)
-    {
-        runBFSActual(vertexLabels[0], quiet);
-    }
-
-    /**
-     * Perform BFS from a starting vertex.
-     * 
-     * @param v
-     * @param quiet
-     */
-    public void runBFS(String v, boolean quiet)
-    {
-        runBFSActual(v, quiet);
-    }
-
-    /**
-     * Returns string of last DFS order.
-     * 
-     * @return
-     */
-    public String getLastDFSOrder()
-    {
-        return dfsvisited.toString();
-    }
-
-    /**
-     * Returns string of last DFS dead ends order.
-     * 
-     * @return
-     */
-    public String getLastDFSDeadEndOrder()
-    {
-        return dfsdeadEnds.toString();
-    }
-
-    /**
      * Returns string of last BFS order.
      * 
      * @return
      */
     public String getLastBFSOrder()
     {
+        if (bfsvisited == null)
+            return "";
         return bfsvisited.toString();
     }
 }

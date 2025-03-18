@@ -24,7 +24,7 @@ public class GraphDriver
      * 
      * @param graphs
      */
-    private static void dfsTestGraphs(ArrayList<Pair<Graph, String>> graphs)
+    private static void testGraphs(ArrayList<Pair<Graph, String>> graphs)
     {
         System.out.println("DFS Algorithms");
         // DFS Testing
@@ -33,38 +33,22 @@ public class GraphDriver
             Graph g = p.one;
             String vertex = p.two;
 
-            g.runDFS(false);
-            System.out.println("Visited: " + g.getLastDFSOrder());
+            g.runDFS(true);
+            System.out.println("DFS Visited: " + g.getLastDFSOrder());
             System.out.println("Dead ends: " + g.getLastDFSDeadEndOrder());
             System.out.println(g);
 
-            g.runDFS(vertex, false);
-            System.out.println("Visited: " + g.getLastDFSOrder());
+            g.runDFS(vertex, true);
+            System.out.println("DFS Visited from " + vertex + ": " + g.getLastDFSOrder());
             System.out.println("Dead ends: " + g.getLastDFSDeadEndOrder());
             System.out.println(g);
-        }
-    }
 
-    /**
-     * Testing method helper, run this for all the supplied graphs.
-     * 
-     * @param graphs
-     */
-    private static void bfsTestGraphs(ArrayList<Pair<Graph, String>> graphs)
-    {
-        System.out.println("BFS Algorithms");
-        // DFS Testing
-        for (Pair<Graph, String> p : graphs)
-        {
-            Graph g = p.one;
-            String vertex = p.two;
-
-            g.runBFS(false);
-            System.out.println("Visited: " + g.getLastBFSOrder());
+            g.runBFS(true);
+            System.out.println("BFS Visited: " + g.getLastBFSOrder());
             System.out.println(g);
 
-            g.runBFS(vertex, false);
-            System.out.println("Visited: " + g.getLastBFSOrder());
+            g.runBFS(vertex, true);
+            System.out.println("BFS Visited from " + vertex + ": " + g.getLastBFSOrder());
             System.out.println(g);
         }
     }
@@ -128,14 +112,25 @@ public class GraphDriver
         // Connected component 2
         g5.addEdge("D", "G");
 
+        Graph g6 = new Graph(new String[] {"1", "2", "3", "4", "5", "6"}, true);
+        g6.addEdge("1", "4");
+        g6.addEdge("2", "1");
+        g6.addEdge("2", "3");
+        g6.addEdge("4", "3");
+        g6.addEdge("2", "4");
+        g6.addEdge("5", "1");
+        g6.addEdge("5", "2");
+        g6.addEdge("5", "6");
+        g6.addEdge("6", "3");
+
         ArrayList<Pair<Graph, String>> graphs = new ArrayList<>();
         graphs.add(new Pair<>(g1, "b3"));
         graphs.add(new Pair<>(g2, "D"));
         graphs.add(new Pair<>(g3, "D"));
         graphs.add(new Pair<>(g4, "C"));
         graphs.add(new Pair<>(g5, "D"));
+        graphs.add(new Pair<>(g6, "3"));
 
-        dfsTestGraphs(graphs);
-        bfsTestGraphs(graphs);
+        testGraphs(graphs);
     }
 }
