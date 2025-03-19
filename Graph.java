@@ -2,15 +2,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+/**
+ * Graph class for lab 4.
+ * 
+ * @author Will Otterbein, Set D, A01372608
+ * @version 2025-1
+ */
 public class Graph
 {
+    // Constant for when I cannot find a vertex integer for a given string
     private static final int VERTEX_BAD = -1;
 
+    // Instance variables, initialized in the constructor
     private final boolean isDirected;
     private final int cardVertices;
     private final String[] vertexLabels;
     private final int[][] edges;
 
+    // My traversal lists as well as the queue used in BFS helper
     private ArrayList<String> dfsvisited;
     private ArrayList<String> dfsdeadEnds;
     private ArrayList<String> bfsvisited;
@@ -152,6 +161,7 @@ public class Graph
 
         for (int i = 0; i < edges[v].length; i++)
         {
+            // If the vertex is already visited or there is no edge, skip
             if (dfsvisited.contains(vertexLabels[i]) || edges[v][i] == 0)
                 continue;
             dfsHelper(i, quiet);
@@ -172,8 +182,10 @@ public class Graph
 
         for (int i = 0; i < edges.length; i++)
         {
+            // If we have already visited this vertex
             if (dfsvisited.contains(getLabel(i)))
                 continue;
+            // All vertices are visited, break out
             if (dfsvisited.size() == cardVertices)
                 break;
             dfsHelper(i, quiet);
@@ -197,8 +209,10 @@ public class Graph
 
         for (int i = v; i < edges.length; i++)
         {
+            // If we have already visited this vertex
             if (dfsvisited.contains(getLabel(i)))
                 continue;
+            // All vertices are visited, break out  
             if (dfsvisited.size() == cardVertices)
                 break;
             dfsHelper(i, quiet);
@@ -214,6 +228,7 @@ public class Graph
      */
     public String getLastDFSOrder()
     {
+        // Avoid nulls
         if (dfsvisited == null)
             return "DFS not run yet";
         return dfsvisited.toString();
@@ -226,6 +241,7 @@ public class Graph
      */
     public String getLastDFSDeadEndOrder()
     {
+        // Avoid nulls
         if (dfsdeadEnds == null)
             return "DFS not run yet";
         return dfsdeadEnds.toString();
@@ -250,6 +266,7 @@ public class Graph
         {
             for (int i = 0; i < edges[lineup.peek()].length; i++)
             {
+                // If we have already visited this vertex or there is no edge
                 if (bfsvisited.contains(getLabel(i)) || edges[lineup.peek()][i] == 0)
                     continue;
                 // Queue my mans unvisited neighbours
@@ -272,8 +289,10 @@ public class Graph
         bfsvisited = new ArrayList<>();
         for (int i = 0; i < edges.length; i++)
         {
+            // If we have already visited the vertex
             if (bfsvisited.contains(getLabel(i)))
                 continue;
+            // Start the bfs from this vertex
             if (bfsvisited.size() == cardVertices)
                 break;
             bfsHelper(i, quiet);
@@ -297,8 +316,10 @@ public class Graph
 
         for (int i = v; i < edges.length; i++)
         {
+            // If we have already visited this vertex
             if (bfsvisited.contains(getLabel(i)))
                 continue;
+            // start the bfs form this vertex
             if (bfsvisited.size() == cardVertices)
                 break;
             bfsHelper(i, quiet);
@@ -314,6 +335,7 @@ public class Graph
      */
     public String getLastBFSOrder()
     {
+        // Avoid nulls
         if (bfsvisited == null)
             return "BFS not run yet";
         return bfsvisited.toString();
