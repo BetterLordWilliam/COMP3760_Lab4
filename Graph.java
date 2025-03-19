@@ -34,23 +34,6 @@ public class Graph
     }
 
     /**
-     * Determines if the graph contains a vertex from a supplied label, returns index or -1 if not.
-     * 
-     * @param vertex
-     * @return
-     */
-    private int containsVertex(String vertex)
-    {
-        int i = 0;
-        for (; i < cardVertices; i++)
-        {
-            if (vertexLabels[i].equals(vertex))
-                return i;
-        }
-        return -1;
-    }
-
-    /**
      * Prints visited line to the console.
      * 
      * @param vertex
@@ -92,6 +75,23 @@ public class Graph
     }
 
     /**
+     * Determines if the graph contains a vertex from a supplied label, returns index or -1 if not.
+     * 
+     * @param vertex
+     * @return
+     */
+    private int containsVertex(String vertex)
+    {
+        int i = 0;
+        for (; i < cardVertices; i++)
+        {
+            if (vertexLabels[i].equals(vertex))
+                return i;
+        }
+        return -1;
+    }
+
+    /**
      * Adds an edge to the graph using existing vertex labels.
      * 
      * @param vertex1
@@ -113,7 +113,7 @@ public class Graph
         // We good, add the edge
         if (isDirected)
             edges[v1][v2] = 1;
-        if (!isDirected)
+        else
         {
             edges[v1][v2] = 1;
             edges[v2][v1] = 1;
@@ -172,9 +172,9 @@ public class Graph
 
         for (int i = 0; i < edges.length; i++)
         {
-            if (dfsvisited.contains(vertexLabels[i]))
+            if (dfsvisited.contains(getLabel(i)))
                 continue;
-            if (dfsvisited.size() == vertexLabels.length)
+            if (dfsvisited.size() == cardVertices)
                 break;
             dfsHelper(i, quiet);
 
@@ -197,9 +197,9 @@ public class Graph
 
         for (int i = v; i < edges.length; i++)
         {
-            if (dfsvisited.contains(vertexLabels[i]))
+            if (dfsvisited.contains(getLabel(i)))
                 continue;
-            if (dfsvisited.size() == vertexLabels.length)
+            if (dfsvisited.size() == cardVertices)
                 break;
             dfsHelper(i, quiet);
 
@@ -215,7 +215,7 @@ public class Graph
     public String getLastDFSOrder()
     {
         if (dfsvisited == null)
-            return "";
+            return "DFS not run yet";
         return dfsvisited.toString();
     }
 
@@ -227,7 +227,7 @@ public class Graph
     public String getLastDFSDeadEndOrder()
     {
         if (dfsdeadEnds == null)
-            return "";
+            return "DFS not run yet";
         return dfsdeadEnds.toString();
     }
 
@@ -241,7 +241,7 @@ public class Graph
     {
         // LinkedList is an implementation of a queue structure in java
         lineup = new LinkedList<>();
-        bfsvisited.add(vertexLabels[v]);
+        bfsvisited.add(getLabel(v));
         if (!quiet) printVisited(v);
 
         // Queue my man up
@@ -250,7 +250,7 @@ public class Graph
         {
             for (int i = 0; i < edges[lineup.peek()].length; i++)
             {
-                if (bfsvisited.contains(vertexLabels[i]) || edges[lineup.peek()][i] == 0)
+                if (bfsvisited.contains(getLabel(i)) || edges[lineup.peek()][i] == 0)
                     continue;
                 // Queue my mans unvisited neighbours
                 bfsvisited.add(getLabel(i));
@@ -272,9 +272,9 @@ public class Graph
         bfsvisited = new ArrayList<>();
         for (int i = 0; i < edges.length; i++)
         {
-            if (bfsvisited.contains(vertexLabels[i]))
+            if (bfsvisited.contains(getLabel(i)))
                 continue;
-            if (bfsvisited.size() == vertexLabels.length)
+            if (bfsvisited.size() == cardVertices)
                 break;
             bfsHelper(i, quiet);
             
@@ -297,9 +297,9 @@ public class Graph
 
         for (int i = v; i < edges.length; i++)
         {
-            if (bfsvisited.contains(vertexLabels[i]))
+            if (bfsvisited.contains(getLabel(i)))
                 continue;
-            if (bfsvisited.size() == vertexLabels.length)
+            if (bfsvisited.size() == cardVertices)
                 break;
             bfsHelper(i, quiet);
             
@@ -315,7 +315,7 @@ public class Graph
     public String getLastBFSOrder()
     {
         if (bfsvisited == null)
-            return "";
+            return "BFS not run yet";
         return bfsvisited.toString();
     }
 }

@@ -112,6 +112,7 @@ public class GraphDriver
         // Connected component 2
         g5.addEdge("D", "G");
 
+        // Lab example
         Graph g6 = new Graph(new String[] {"1", "2", "3", "4", "5", "6"}, true);
         g6.addEdge("1", "4");
         g6.addEdge("2", "1");
@@ -123,6 +124,12 @@ public class GraphDriver
         g6.addEdge("5", "6");
         g6.addEdge("6", "3");
 
+        // Super duper test
+        Graph g7 = new Graph(new String[] {"A"}, false);
+
+        // Super duper duper test
+        Graph g8 = new Graph(new String[] {}, false);
+
         ArrayList<Pair<Graph, String>> graphs = new ArrayList<>();
         graphs.add(new Pair<>(g1, "b3"));
         graphs.add(new Pair<>(g2, "D"));
@@ -130,6 +137,8 @@ public class GraphDriver
         graphs.add(new Pair<>(g4, "C"));
         graphs.add(new Pair<>(g5, "D"));
         graphs.add(new Pair<>(g6, "3"));
+        graphs.add(new Pair<>(g7, "A"));
+        graphs.add(new Pair<>(g8, ""));
 
         testGraphs(graphs);
     }
