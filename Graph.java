@@ -1,6 +1,11 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Graph class for lab 4.
@@ -11,51 +16,55 @@ import java.util.LinkedList;
 public class Graph
 {
     // Constant for when I cannot find a vertex integer for a given string
-    private static final int VERTEX_BAD = -1;
+    private static final int            VERTEX_BAD          = -1;
+    private static final String         OUTSIDE_ARRAY       = "Outside array bounds.";
+    private static final String         VERTEX_VISITED      = "Visited: %s";
+    private static final String         BAD_VERTEX_LABELS   = "Bad vertex label(s) given: %s, %s";
+    private static final String         EXPECTED_LABELS     = "Expected: %s";
 
     // Instance variables, initialized in the constructor
-    private final boolean isDirected;
-    private final int cardVertices;
-    private final String[] vertexLabels;
-    private final int[][] edges;
+    private final boolean               isDirected;
+    private final int                   cardVertices;
+    private final int[][]               adjMat;
 
     // My traversal lists as well as the queue used in BFS helper
-    private ArrayList<String> dfsvisited;
-    private ArrayList<String> dfsdeadEnds;
-    private ArrayList<String> bfsvisited;
-    private LinkedList<Integer> lineup;
+    private final String[]              vertexLabels;
+    private final List<String>          dfsvisited;
+    private final List<String>          dfsdeadEnds;
+    private final List<String>          bfsvisited;
+    private final List<Integer>         lineup;
+    // private final Map<String, Integer>  vertexLabelIndexMap;
+    private final Map<String, Boolean>  visitedMap;
 
     /**
      * Graph constructor.
      * 
-     * @param vertexLabels
-     * @param isDirected
+     * @param   vertexLabels    String[]    Vertex strings for the graph
+     * @param   isDirected      boolean     Indicating whether the graph is directed or undirected
      */
-    public Graph(String[] vertexLabels, boolean isDirected)
-    {
-        // Save references
-        this.vertexLabels = vertexLabels;
-        this.isDirected = isDirected;
+    public Graph(
+        final String[]  vertexLabels,
+        final boolean   isDirected
+    ) {
+        this.isDirected             = isDirected;
+        this.cardVertices           = vertexLabels.length;
+        this.adjMat                 = new int[cardVertices][cardVertices];
 
-        // Initialize other stuff
-        cardVertices = vertexLabels.length;
-        edges = new int[cardVertices][cardVertices];
-    }
+        // Label trackers
+        this.vertexLabels           = vertexLabels;
+        this.dfsvisited             = new ArrayList<>();
+        this.dfsdeadEnds            = new ArrayList<>();
+        this.bfsvisited             = new ArrayList<>();
+        this.lineup                 = new LinkedList<>();
 
-    /**
-     * Prints visited line to the console.
-     * 
-     * @param vertex
-     */
-    private void printVisited(int vertex)
-    {
-        System.out.println(String.format("Visisted: %s", vertexLabels[vertex]));
+        // Initialize a map to keep track of visited vertex
+        this.visitedMap             = new HashMap<>();
     }
 
     /**
      * Indicates whether the graph is a boolean.
      * 
-     * @return
+     * @return whether the graph is directed or undirected
      */
     public boolean isDirected()
     {
@@ -65,7 +74,7 @@ public class Graph
     /**
      * Returns the number of vertices.
      * 
-     * @return
+     * @return the number of vertices in the graph
      */
     public int size()
     {
@@ -75,29 +84,33 @@ public class Graph
     /**
      * Returns vertex label of V
      * 
-     * @param v
+     * @param v     int     vertex label
      * @return
      */
-    public String getLabel(int v)
+    public String getLabel(final int v)
     {
-        return vertexLabels[v];
+        // Item exists then return the label for the item
+        try {
+            return vertexLabels[v];
+        // Otherwise, return an empty string
+        } catch (IndexOutOfBoundsException e) {
+            return OUTSIDE_ARRAY;
+        }
     }
 
     /**
-     * Determines if the graph contains a vertex from a supplied label, returns index or -1 if not.
+     * Returns the vertex index of a specified string label.
      * 
      * @param vertex
      * @return
      */
-    private int containsVertex(String vertex)
+    public int getIndex(final String vertex)
     {
-        int i = 0;
-        for (; i < cardVertices; i++)
+        for (int i = 0; i < vertexLabels.length; i++)
         {
-            if (vertexLabels[i].equals(vertex))
-                return i;
+            if (vertexLabels[i].equals(vertex)) return i;
         }
-        return -1;
+        return VERTEX_BAD;
     }
 
     /**
@@ -108,41 +121,38 @@ public class Graph
      */
     public void addEdge(String vertex1, String vertex2)
     {
-        int v1 = containsVertex(vertex1);
-        int v2 = containsVertex(vertex2);
+        final int v1 = getIndex(vertex1);
+        final int v2 = getIndex(vertex2);
 
         // Bad vertex labels supplied
         if (v1 == VERTEX_BAD || v1 == VERTEX_BAD)
         {
-            System.out.println(String.format("Bad vertex label(s) given: %s, %s", vertex1, vertex2));
-            System.out.println(String.format("Expected: %s", Arrays.toString(vertexLabels)));
+            System.out.println(String.format(BAD_VERTEX_LABELS, vertex1, vertex2));
+            System.out.println(String.format(EXPECTED_LABELS, vertexLabels));
             return;
         }
 
         // We good, add the edge
         if (isDirected)
-            edges[v1][v2] = 1;
+            adjMat[v1][v2] = 1;
         else
         {
-            edges[v1][v2] = 1;
-            edges[v2][v1] = 1;
+            adjMat[v1][v2] = 1;
+            adjMat[v2][v1] = 1;
         }
     }
 
     /**
      * String representation of the adjacency matrix.
+     * 
+     * @return      String
      */
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        // sb.append("  ");
-        // sb.append(String.join("  ", vertexLabels));
-        // sb.append("\n");
-        for (int i = 0; i < edges.length; i++)
-        {
-            sb.append(vertexLabels[i]);
-            sb.append(Arrays.toString(edges[i]));
+        for (int[] adjMat1 : adjMat) {
+            sb.append(Arrays.toString(adjMat1));
             sb.append("\n");
         }
         return sb.toString();
@@ -151,22 +161,31 @@ public class Graph
     /**
      * Helper function for DFS, use call stack instead of creating a stack.
      * 
-     * @param v
-     * @param quiet
+     * @param v     int     vertex to start running BFS on
+     * @param quiet boolean whether to run BFS in quiet mode
      */
-    private void dfsHelper(int v, boolean quiet)
-    {  
-        dfsvisited.add(vertexLabels[v]);
-        if (!quiet) printVisited(v);
+    private void dfsHelper(final int vertex, boolean quiet)
+    {
+        // Save index of the vertex
+        final int v = getIndex(vertex);
 
-        for (int i = 0; i < edges[v].length; i++)
+        // Print visited message, if not running quietly
+        if (!quiet) System.out.println(String.format(VERTEX_VISITED, vertex));
+        
+        // Update visited list and map
+        dfsvisited.add(vertex);
+        visitedMap.put(vertex, true);
+
+        for (int i = 0; i < adjMat[v].length; i++)
         {
             // If the vertex is already visited or there is no edge, skip
-            if (dfsvisited.contains(vertexLabels[i]) || edges[v][i] == 0)
+            if (visitedMap.get(vertexLabels[i]) == true || adjMat[v][i] == 0)
                 continue;
-            dfsHelper(i, quiet);
+            dfsHelper(vertex, quiet);
         }
-        dfsdeadEnds.add(getLabel(v));
+        
+        // Update dead ends list
+        dfsdeadEnds.add(vertex);
     }
 
     /**
@@ -176,21 +195,16 @@ public class Graph
      */
     public void runDFS(boolean quiet)
     {
-        // Just use the first vertex label
-        dfsvisited = new ArrayList<>();
-        dfsdeadEnds = new ArrayList<>();
+        dfsvisited.clear();
+        dfsdeadEnds.clear();
+        visitedMap.clear();
 
-        for (int i = 0; i < edges.length; i++)
+        // Run DFS on the graph
+        for (String vertex : vertexLabels)
         {
-            // If we have already visited this vertex
-            if (dfsvisited.contains(getLabel(i)))
+            if (visitedMap.get(vertex) == true)
                 continue;
-            // All vertices are visited, break out
-            if (dfsvisited.size() == cardVertices)
-                break;
-            dfsHelper(i, quiet);
-
-            if (i == edges.length - 1) i = 0;
+            dfsHelper(vertex, quiet);
         }
     }
 
@@ -199,25 +213,24 @@ public class Graph
      * 
      * @param quiet
      */
-    public void runDFS(String vertex, boolean quiet)
+    public void runDFS(String startVertex, boolean quiet)
     {
-        // Get the vertex for the supplied string
-        int v = containsVertex(vertex);
-        if (v == VERTEX_BAD) return;
-        dfsvisited = new ArrayList<>();
-        dfsdeadEnds = new ArrayList<>();
+        // Validate the supplied vertex is in the graph
 
-        for (int i = v; i < edges.length; i++)
+
+        dfsvisited.clear();
+        dfsdeadEnds.clear();
+        visitedMap.clear();
+
+        // Run DFS on the supplied label
+        dfsHelper(startVertex, quiet);
+        
+        // Run DFS on the graph
+        for (String vertex : vertexLabels)
         {
-            // If we have already visited this vertex
-            if (dfsvisited.contains(getLabel(i)))
+            if (visitedMap.get(vertex) == true)
                 continue;
-            // All vertices are visited, break out  
-            if (dfsvisited.size() == cardVertices)
-                break;
-            dfsHelper(i, quiet);
-
-            if (i == edges.length - 1) i = 0;
+            dfsHelper(vertex, quiet);
         }
     }
 
@@ -256,7 +269,7 @@ public class Graph
     private void bfsHelper(int v, boolean quiet)
     {
         // LinkedList is an implementation of a queue structure in java
-        lineup = new LinkedList<>();
+        lineup.clear();
         bfsvisited.add(getLabel(v));
         if (!quiet) printVisited(v);
 
@@ -264,10 +277,10 @@ public class Graph
         lineup.add(v);
         while (!lineup.isEmpty())
         {
-            for (int i = 0; i < edges[lineup.peek()].length; i++)
+            for (int i = 0; i < adjMat[lineup.peek()].length; i++)
             {
                 // If we have already visited this vertex or there is no edge
-                if (bfsvisited.contains(getLabel(i)) || edges[lineup.peek()][i] == 0)
+                if (bfsvisited.contains(getLabel(i)) || adjMat[lineup.peek()][i] == 0)
                     continue;
                 // Queue my mans unvisited neighbours
                 bfsvisited.add(getLabel(i));
@@ -286,8 +299,10 @@ public class Graph
      */
     public void runBFS(boolean quiet)
     {
-        bfsvisited = new ArrayList<>();
-        for (int i = 0; i < edges.length; i++)
+        bfsvisited.clear();
+        visitedMap.clear();
+
+        for (int i = 0; i < adjMat.length; i++)
         {
             // If we have already visited the vertex
             if (bfsvisited.contains(getLabel(i)))
@@ -297,7 +312,7 @@ public class Graph
                 break;
             bfsHelper(i, quiet);
             
-            if (i == edges.length - 1) i = 0;
+            if (i == adjMat.length - 1) i = 0;
         }
     }
 
@@ -312,9 +327,11 @@ public class Graph
         // Get the vertex for the supplied string
         int v = containsVertex(vertex);
         if (v == VERTEX_BAD) return;
-        bfsvisited = new ArrayList<>();
+        
+        bfsvisited.clear();
+        visitedMap.clear();
 
-        for (int i = v; i < edges.length; i++)
+        for (int i = v; i < adjMat.length; i++)
         {
             // If we have already visited this vertex
             if (bfsvisited.contains(getLabel(i)))
@@ -324,7 +341,7 @@ public class Graph
                 break;
             bfsHelper(i, quiet);
             
-            if (i == edges.length - 1) i = 0;
+            if (i == adjMat.length - 1) i = 0;
         }
     }
 
